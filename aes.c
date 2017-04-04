@@ -40,6 +40,16 @@ void printer(int array[F], int n){
   printf("\n");
 }
 
+void hexadecimal(int bi[j]) {
+	int aux;
+	for(int i=0 ; i<16 ; i++){
+		if(bi[i] < 9){
+			aux = binario(bi[i]);
+		}else{
+			if(bi[i] == 'A'){
+				aux = '1010';
+}
+
 int main(int argc, char const *argv[]) {
 
   int b[128];
