@@ -46,11 +46,18 @@ int main(int argc, char const *argv[]) {
   bitGenerator(b);
   printf("b: \n");
   printer(b,F);
+	
+  int row, col;
+  int j=0;
   for(int i; i< 128 ;i+=8){
 	row = b[i]*8 +b[i+1]*4 +b[i+2]*2 +b[i+3]*1;
 	col = b[i+4]*8 +b[i+5]*4 +b[i+6]*2 +b[i+7]*1;
+	bi[j]=aes_sbox[row][col];
+
 	//printf("%d%d%d%d %d%d%d%d\n", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
 	//printf("row = %d  col = %d\n", row, col);
+	printf("\n%0x", bi[j]);
+        j++;
   }
 	
 	
