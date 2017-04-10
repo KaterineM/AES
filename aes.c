@@ -48,6 +48,9 @@ void hexadecimal(int bi[j]) {
 		}else{
 			if(bi[i] == 'A'){
 				aux = '1010';
+			}
+		}
+		
 }
 
 int main(int argc, char const *argv[]) {
