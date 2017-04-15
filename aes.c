@@ -5,7 +5,7 @@
 
 #define F 128
 
-static const char aes_sbox[16][16] = {
+char *aes_sbox[16][16] = {
 	{"63","7C","77","7B","F2","6B","6F","C5","30","01","67","2B","FE","D7","AB","76"},
 	{"CA","82","C9","7D","FA","59","47","F0","AD","D4","A2","AF","9C","A4","72","C0"},
 	{"B7","FD","93","26","36","3F","F7","CC","34","A5","E5","F1","71","D8","31","15"},
@@ -26,9 +26,10 @@ static const char aes_sbox[16][16] = {
 
 void printer(int array[F], int n);
 void bitGenerator(int b[128]);
+char* hextobin(char hex);
+
 
 void bitGenerator(int b[128]){
-	srand ( time(NULL) );
 	for(int i=0 ; i<128 ; i++)
 		b[i] = rand() % 2;
 }
@@ -40,90 +41,56 @@ void printer(int array[F], int n){
   printf("\n");
 }
 
-void hexadecimal(int bi[j]) {
-	int aux;
-	for(int i=0 ; i<16 ; i++){
-		if(bi[i] < 9){
-			aux = binario(bi[i]);
-		}else{
-			if(bi[i] == 'A')
-				aux = '1010';
-			}
-		
-	}	
+char* hextobin(char hex){
+	switch (hex) {
+		case '0': return "0000";
+		case '1': return "0001";
+		case '2': return "0010";
+		case '3': return "0011";
+		case '4': return "0100";
+		case '5': return "0101";
+		case '6': return "0110";
+		case '7': return "0111";
+		case '8': return "1000";
+		case '9': return "1001";
+		case 'A': return "1010";
+		case 'B': return "1011";
+		case 'C': return "1100";
+		case 'D': return "1101";
+		case 'E': return "1110";
+		case 'F': return "1111";
+		case 'a': return "1010";
+		case 'b': return "1011";
+		case 'c': return "1100";
+		case 'd': return "1101";
+		case 'e': return "1110";
+		case 'f': return "1111";
+	}
 }
 
 int main(int argc, char const *argv[]) {
 
   int b[128];
+	char *hex[16];
   bitGenerator(b);
   printf("b: \n");
-  printer(b,F);
-	
+//  printer(b,F);
+
   int row, col;
   int j=0;
-  for(int i; i< 128 ;i+=8){
-	row = b[i]*8 +b[i+1]*4 +b[i+2]*2 +b[i+3]*1;
-	col = b[i+4]*8 +b[i+5]*4 +b[i+6]*2 +b[i+7]*1;
-	bi[j]=aes_sbox[row][col];
-	//printf("%d%d%d%d %d%d%d%d\n", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
-	//printf("row = %d  col = %d\n", row, col);
-	printf("\n%0x", bi[j]);
-        j++;
-  }	
-  
-        }
-//bin to ex
-        switch (hexa[i])
-        {
-        case '0':
-            printf("0000"); break;
-        case '1':
-            printf("0001"); break;
-        case '2':
-            printf("0010"); break;
-        case '3':
-            printf("0011"); break;
-        case '4':
-            printf("0100"); break;
-        case '5':
-            printf("0101"); break;
-        case '6':
-            printf("0110"); break;
-        case '7':
-            printf("0111"); break;
-        case '8':
-            printf("1000"); break;
-        case '9':
-            printf("1001"); break;
-        case 'A':
-            printf("1010"); break;
-        case 'B':
-            printf("1011"); break;
-        case 'C':
-            printf("1100"); break;
-        case 'D':
-            printf("1101"); break;
-        case 'E':
-            printf("1110"); break;
-        case 'F':
-            printf("1111"); break;
-        case 'a':
-            printf("1010"); break;
-        case 'b':
-            printf("1011"); break;
-        case 'c':
-            printf("1100"); break;
-        case 'd':
-            printf("1101"); break;
-        case 'e':
-            printf("1110"); break;
-        case 'f':
-            printf("1111"); break;
-        default:
-            printf("\n Invalid hexa digit %c ", hexa[i]);
-            return 0;
-        }
-	
+
+	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en bi
+  for(int i=0; i< 128 ;i+=8){
+		row = b[i]*8 +b[i+1]*4 +b[i+2]*2 +b[i+3]*1;
+		col = b[i+4]*8 +b[i+5]*4 +b[i+6]*2 +b[i+7]*1;
+		hex[j]=aes_sbox[row][col];
+		//printf("%d%d%d%d %d%d%d%d\n", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
+		//printf("row = %d  col = %d\n", row, col);
+		printf("\n%s", hex[j]);
+	  j++;
+  }
+	printf("\n%s", hextobin(hex[0][0]));
+
+
   return 0;
 }
