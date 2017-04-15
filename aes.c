@@ -36,7 +36,7 @@ void bitGenerator(int b[128]){
 
 void printer(int array[F], int n){
   for(int i=0 ; i<n ; i++){
-    printf("%u", array[i]);
+    printf("%i", array[i]);
   }
   printf("\n");
 }
@@ -70,26 +70,37 @@ char* hextobin(char hex){
 
 int main(int argc, char const *argv[]) {
 
-  int b[128];
-	char *hex[16];
-  bitGenerator(b);
-  printf("b: \n");
-//  printer(b,F);
+  int a[128];
+	int b[128];
+  bitGenerator(a);
+  printf("\na: ");
+  printer(a,F);
 
   int row, col;
-  int j=0;
+  int k=0;
+	char *hex;
+	char *bin;
+	char *bin2;
 
-	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en bi
+	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex
   for(int i=0; i< 128 ;i+=8){
-		row = b[i]*8 +b[i+1]*4 +b[i+2]*2 +b[i+3]*1;
-		col = b[i+4]*8 +b[i+5]*4 +b[i+6]*2 +b[i+7]*1;
-		hex[j]=aes_sbox[row][col];
-		//printf("%d%d%d%d %d%d%d%d\n", b[i], b[i+1], b[i+2], b[i+3], b[i+4], b[i+5], b[i+6], b[i+7]);
-		//printf("row = %d  col = %d\n", row, col);
-		printf("\n%s", hex[j]);
-	  j++;
+		row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;
+		col = a[i+4]*8 +a[i+5]*4 +a[i+6]*2 +a[i+7]*1;
+		//aux guarda el resultado de la sbox aux[0] contiene el digito de la izq y aux[1] el de la derecha
+		hex=aes_sbox[row][col];
+		printf("\n%s",hex );
+		//convierte el hexadecimal a binario y lo aguarda en el arreglo b
+		k=i; // para que guarde los bits transformados en la posición original que estaban en a
+		for (size_t j = 0; j < 4; j++) {
+			bin = hextobin(hex[0]);
+			bin2 = hextobin(hex[1]);
+		 	b[k] = bin[j] - '0';
+		 	b[k+4] = bin2[j] - '0';
+		 	k++;
+		}
   }
-	printf("\n%s", hextobin(hex[0][0]));
+	printf("\nb:");
+	printer(b,F);
 
 
   return 0;
