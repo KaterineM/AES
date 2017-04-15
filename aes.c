@@ -85,13 +85,14 @@ int main(int argc, char const *argv[]) {
 	char *bin;
 	char *bin2;
 
+	//byte Substitution
 	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex y al final pasa todo a un arreglo b
   for(int i=0; i< 128 ;i+=8){
 		row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;
 		col = a[i+4]*8 +a[i+5]*4 +a[i+6]*2 +a[i+7]*1;
 		//aux guarda el resultado de la sbox aux[0] contiene el digito de la izq y aux[1] el de la derecha
 		hex=aes_sbox[row][col];
-		printf("\n%s",hex );
+		//printf("\n%s",hex );
 		//convierte el hexadecimal a binario y lo aguarda en el arreglo b
 		k=i; // para que guarde los bits transformados en la posición original que estaban en a
 		for (size_t j = 0; j < 4; j++) {
@@ -106,15 +107,14 @@ int main(int argc, char const *argv[]) {
 
 
 	//Shiftrows
-	printf("\nshiftrow\n" );
 	k=0;
 	int shiftRows[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11}; //están son las posiciones en que debe estar los b luego del shiftRows
 	for(int i=0 ; i<16; i++){
-		printf("\nb[%i]:", shiftRows[i] );
+		//printf("\nb[%i]:", shiftRows[i] );
 		for (int j = 0; j < 8; j++) {
-			 s[k] = b[shiftRows[i]*8 + j];
-			 printf("%i", s[k]);
-			 k++;
+			 s[k] = b[shiftRows[i]*8 + j]; // se encarga de mover los 8 valores de b del shifteows a s
+			 //printf("%i", s[k]);
+			 k++; // k va 0 a 128
 		}
   }
 	printf("\ns:" );
