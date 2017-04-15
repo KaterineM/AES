@@ -24,6 +24,8 @@ char *aes_sbox[16][16] = {
 	{"8C","A1","89","0D","BF","E6","42","68","41","99","2D","0F","B0","54","BB","16"}
 };
 
+
+
 void printer(int array[F], int n);
 void bitGenerator(int b[128]);
 char* hextobin(char hex);
@@ -70,8 +72,9 @@ char* hextobin(char hex){
 
 int main(int argc, char const *argv[]) {
 
-  int a[128];
-	int b[128];
+  int a[128];	//arreglo a codificar
+	int b[128];  //bits Substitution
+	int s[128]; //shiftrows, guarda los desplazamientos
   bitGenerator(a);
   printf("\na: ");
   printer(a,F);
@@ -99,9 +102,22 @@ int main(int argc, char const *argv[]) {
 		 	k++;
 		}
   }
-	printf("\nb:");
-	printer(b,F);
 
 
+
+	//Shiftrows
+	printf("\nshiftrow\n" );
+	k=0;
+	int shiftRows[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11}; //están son las posiciones en que debe estar los b luego del shiftRows
+	for(int i=0 ; i<16; i++){
+		printf("\nb[%i]:", shiftRows[i] );
+		for (int j = 0; j < 8; j++) {
+			 s[k] = b[shiftRows[i]*8 + j];
+			 printf("%i", s[k]);
+			 k++;
+		}
+  }
+	printf("\ns:" );
+	printer(s,F);
   return 0;
 }
