@@ -82,7 +82,7 @@ int main(int argc, char const *argv[]) {
 	char *bin;
 	char *bin2;
 
-	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex
+	//Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex y al final pasa todo a un arreglo b
   for(int i=0; i< 128 ;i+=8){
 		row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;
 		col = a[i+4]*8 +a[i+5]*4 +a[i+6]*2 +a[i+7]*1;
