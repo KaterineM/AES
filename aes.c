@@ -85,17 +85,18 @@ char* hextobin(char hex){
 
 
 
-int main(int argc, char const *argv[]) {
-
+int main() {
   int a[NUM]; 																			//arreglo a codificar
   int b[NUM];  																			//bits Substitution
   int s[NUM]; 																			//shiftrows, guarda los desplazamientos
+  int aux[NUM];																			//arreglo auxiliar para mixcolumn
+
   bitGenerator(a);
   printf("\na: ");
   printer(a,NUM);
 
   int row, col;
-  int k=0;
+  int k = 0;
   char *hex;
   char *bin;
   char *bin2;
@@ -123,10 +124,10 @@ int main(int argc, char const *argv[]) {
 
 
   //Shiftrows
-  k=0;
+  k = 0;
   int shiftRows[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11}; 	//Posiciones en que debe estar los b luego del shiftRows
   
-  for(int i=0 ; i<16; i++){
+  for(int i=0 ; i<16 ; i++){
     for (int j = 0; j < 8; j++) {
        s[k] = b[shiftRows[i]*8 + j]; 								// se encarga de mover los 8 valores de b del shifteows a s
        k++; 																				// k va 0 a 128
@@ -135,6 +136,15 @@ int main(int argc, char const *argv[]) {
   printf("\ns: " );
   printer(s,NUM);
 
+  //MixColumn
+  int raised = 8;
+  for(int i=0 ; i<NUM ; i++){
+  	if(i % 8 == 0){
+  		raised = 8;
+  	}
+  	aux[i] = s[i]*raised;
+  	raised--;
+  }
 
   return 0;
 }
