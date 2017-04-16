@@ -30,7 +30,7 @@ char *aes_sbox[16][16] = {
   {"8C","A1","89","0D","BF","E6","42","68","41","99","2D","0F","B0","54","BB","16"}
 };
 
-int matrix[4][8] = {
+int matrix[4][4] = {
 	{02, 03, 01, 01},
 	{01, 02, 03, 01},
 	{01, 01, 02, 03},
@@ -44,6 +44,7 @@ char* hextobin(char hex);
 
 
 void bitGenerator(int b[NUM]){
+  srand ( time(NULL) );
   for(int i=0 ; i<NUM ; i++)
     b[i] = rand() % 2;
 }
@@ -90,6 +91,7 @@ int main() {
   int b[NUM];  																			//bits Substitution
   int s[NUM]; 																			//shiftrows, guarda los desplazamientos
   int aux[NUM];																			//arreglo auxiliar para mixcolumn
+  int aux2[144];
 
   bitGenerator(a);
   printf("\na: ");
@@ -139,12 +141,61 @@ int main() {
   //MixColumn
   int raised = 8;
   for(int i=0 ; i<NUM ; i++){
-  	if(i % 8 == 0){
+  	if(i % 8 == 0){                                //raised vuelve a 8 cuando ya ha tomado los 8-bit correspondientes para mixcolumn
   		raised = 8;
   	}
-  	aux[i] = s[i]*raised;
+  	aux[i] = s[i]*raised;                          //transforma los binarios en coeficientes polimoniales
   	raised--;
   }
+
+  printf("\nP: ");
+  printer(aux,NUM);
+
+  row = 0, col = 0;
+  int piv = 0;
+  for(int i=0 ; i<NUM ; i+=32){
+    k = i;
+    for(int j=i ; j<k+32 ; j+=8){
+      if(matrix[row][col] == 01){
+        aux2[piv] = aux[j];
+        aux2[piv+1] = aux[j+1];
+        aux2[piv+2] = aux[j+2];
+        aux2[piv+3] = aux[j+3];
+        aux2[piv+4] = aux[j+4];
+        aux2[piv+5] = aux[j+5];
+        aux2[piv+6] = aux[j+6];
+        aux2[piv+7] = aux[j+7];
+        aux2[piv+8] = 1;
+      }else if(matrix[row][col] == 02){
+        aux2[piv] = aux[j] + 1;
+        aux2[piv+1] = aux[j+1] + 1;
+        aux2[piv+2] = aux[j+2] + 1;
+        aux2[piv+3] = aux[j+3] + 1;
+        aux2[piv+4] = aux[j+4] + 1;
+        aux2[piv+5] = aux[j+5] + 1;
+        aux2[piv+6] = aux[j+6] + 1;
+        aux2[piv+7] = aux[j+7] + 1;
+        aux2[piv+8] = 0;
+      }else{
+        aux2[piv] = aux[j] + 1;
+        aux2[piv+1] = aux[j+1] + 1;
+        aux2[piv+2] = aux[j+2] + 1;
+        aux2[piv+3] = aux[j+3] + 1;
+        aux2[piv+4] = aux[j+4] + 1;
+        aux2[piv+5] = aux[j+5] + 1;
+        aux2[piv+6] = aux[j+6] + 1;
+        aux2[piv+7] = aux[j+7] + 1;
+        aux2[piv+8] = 1;
+      }
+      piv+=9;
+      col++;
+    }
+    row++;
+    col = 0;
+  }
+
+  printf("\nM: ");
+  printer(aux2,144);
 
   return 0;
 }
