@@ -220,6 +220,20 @@ int main() {
 
   printf("\nM: ");
   printer(aux2,144);
+	
+	for(i=0 ; i<144 ; i+=9){
+    if(i == 8){
+      reduccion()
+    }else{
+      for(int j=i+1; j<i+9 ; j++){
+        if(aux2 != 0){
+          s[i-1] = 1;
+        }else{
+          s[i-1] = 0;
+        }
+      }
+    }
+  }
 
   return 0;
 }
