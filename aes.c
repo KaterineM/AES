@@ -41,7 +41,7 @@ int matrix[4][4] = {
 void printer(int array[NUM], int n);
 void bitGenerator(int b[NUM]);
 char* hextobin(char hex);
-
+int check(int n);
 
 void bitGenerator(int b[NUM]){
   srand ( time(NULL) );
@@ -83,6 +83,12 @@ char* hextobin(char hex){
   }
 }
 
+int check(int x){
+  if(x != 0){
+    x += 1;
+  }
+  return x;
+}
 
 
 
@@ -91,19 +97,20 @@ int main() {
   int b[NUM];  																			//bits Substitution
   int s[NUM]; 																			//shiftrows, guarda los desplazamientos
   int aux[NUM];																			//arreglo auxiliar para mixcolumn
-  int aux2[144];
+  int aux2[144];                                    //arreglo auxiliar para la multiplicación en mixcolumn
 
   bitGenerator(a);
   printf("\na: ");
   printer(a,NUM);
 
-  int row, col;
+  int row, col, piv;
   int k = 0;
   char *hex;
   char *bin;
   char *bin2;
 
 
+/************************************************************/  
   //byte Substitution. Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex y al final pasa todo a un arreglo b
   for(int i=0; i<NUM ;i+=8){												
     row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;			//convierte el hexadecimal a binario 
@@ -125,6 +132,7 @@ int main() {
   printer(b,NUM);
 
 
+/*********************************************************/
   //Shiftrows
   k = 0;
   int shiftRows[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11}; 	//Posiciones en que debe estar los b luego del shiftRows
@@ -138,54 +146,70 @@ int main() {
   printf("\ns: " );
   printer(s,NUM);
 
+
+/********************************************************/
   //MixColumn
-  int raised = 8;
+
+  //Toma de a 8-bit y los transforma en sus respectivos coeficientes polimoniales
+  int raised = 7;
+  piv = 7;
   for(int i=0 ; i<NUM ; i++){
-  	if(i % 8 == 0){                                //raised vuelve a 8 cuando ya ha tomado los 8-bit correspondientes para mixcolumn
-  		raised = 8;
-  	}
-  	aux[i] = s[i]*raised;                          //transforma los binarios en coeficientes polimoniales
+  	if(i % 8 == 0){                                //raised vuelve a 7 cuando ya ha tomado los 8-bit correspondientes para mixcolumn
+  		raised = 7;
+  	}else if(i == piv){                            //Se guarda un {0,1} en x^0 en vez de su grado, para saber si es que hay o no componente en esa posición
+      aux[i] = s[i];                               //ya que si se guarda el grado, siempre sería cero y se perdería ese dato.
+      piv+=8;
+      raised--;
+      continue;
+    }
+  	aux[i] = s[i]*raised;                          //transforma los binarios en sus grados respectivos
   	raised--;
   }
+
+  /*
+  La estructura de aux[NUM] es: 
+  - De 0 a 6 primeras posiciones de bits de aux, se guarda el grado correspondiente segun posicion de acuerdo a s.
+  - En la posición 7 se guarda el mismo valor de s para saber si es que x⁰ existe. Si se guardara el valor de su grado, siempre sería 0.
+  */
 
   printf("\nP: ");
   printer(aux,NUM);
 
-  row = 0, col = 0;
-  int piv = 0;
+  //Multiplicacion por matriz
+  row = 0, col = 0, piv = 0;
   for(int i=0 ; i<NUM ; i+=32){
     k = i;
     for(int j=i ; j<k+32 ; j+=8){
-      if(matrix[row][col] == 01){
-        aux2[piv] = aux[j];
-        aux2[piv+1] = aux[j+1];
-        aux2[piv+2] = aux[j+2];
-        aux2[piv+3] = aux[j+3];
-        aux2[piv+4] = aux[j+4];
-        aux2[piv+5] = aux[j+5];
-        aux2[piv+6] = aux[j+6];
-        aux2[piv+7] = aux[j+7];
-        aux2[piv+8] = 1;
-      }else if(matrix[row][col] == 02){
-        aux2[piv] = aux[j] + 1;
-        aux2[piv+1] = aux[j+1] + 1;
-        aux2[piv+2] = aux[j+2] + 1;
-        aux2[piv+3] = aux[j+3] + 1;
-        aux2[piv+4] = aux[j+4] + 1;
-        aux2[piv+5] = aux[j+5] + 1;
-        aux2[piv+6] = aux[j+6] + 1;
-        aux2[piv+7] = aux[j+7] + 1;
-        aux2[piv+8] = 0;
+      if(matrix[row][col] == 01){                 //Sólo se suma uno a x⁰ y se utiliza el XOR para que 
+        aux2[piv] = 0;                            //cumpla con GL(2⁸)
+        aux2[piv+1] = aux[j];                     
+        aux2[piv+2] = aux[j+1];
+        aux2[piv+3] = aux[j+2];
+        aux2[piv+4] = aux[j+3];
+        aux2[piv+5] = aux[j+4];
+        aux2[piv+6] = aux[j+5];
+        aux2[piv+7] = aux[j+6];
+        aux2[piv+8] = aux[j+7]^1;
+      }else if(matrix[row][col] == 02){           //Check verifica si es que x^n existe y devuelve n+1
+        aux2[piv] = check(aux[j]);                
+        aux2[piv+1] = check(aux[j+1]);
+        aux2[piv+2] = check(aux[j+2]);
+        aux2[piv+3] = check(aux[j+3]);
+        aux2[piv+4] = check(aux[j+4]);
+        aux2[piv+5] = check(aux[j+5]);
+        aux2[piv+6] = check(aux[j+6]);
+        aux2[piv+7] = aux[j+7];                   //No se hace el check porque corresponde a x⁰ porque el valor guardado en esa posición es {0,1} siendo 0 si existe y 1 si no.
+        aux2[piv+8] = 0;                          //Se pone 0 por default ya que el polinomio se está multiplicando por x¹, por lo tanto, no hay x⁰
       }else{
-        aux2[piv] = aux[j] + 1;
-        aux2[piv+1] = aux[j+1] + 1;
-        aux2[piv+2] = aux[j+2] + 1;
-        aux2[piv+3] = aux[j+3] + 1;
-        aux2[piv+4] = aux[j+4] + 1;
-        aux2[piv+5] = aux[j+5] + 1;
-        aux2[piv+6] = aux[j+6] + 1;
-        aux2[piv+7] = aux[j+7] + 1;
-        aux2[piv+8] = 1;
+        aux2[piv] = check(aux[j]);                //Se suma 1 a cada grado (funcion check) y se les aplica XOR con el polinomio original (ya que es x + 1) 
+        aux2[piv+1] = check(aux[j+1])^aux[j];     //
+        aux2[piv+2] = check(aux[j+2])^aux[j+1];   //
+        aux2[piv+3] = check(aux[j+3])^aux[j+2];   //
+        aux2[piv+4] = check(aux[j+4])^aux[j+3];
+        aux2[piv+5] = check(aux[j+5])^aux[j+4];
+        aux2[piv+6] = check(aux[j+6])^aux[j+5];
+        aux2[piv+7] = aux[j+7]^aux[j+6]; 
+        aux2[piv+8] = aux[j+7];
       }
       piv+=9;
       col++;
