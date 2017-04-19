@@ -245,7 +245,7 @@ int main() {
   printf("s: " );
   printer(s,128);
 
-  for (size_t i = 0; i < 128; i++) {
+  for (size_t i = 0; i < 128; i++) { // se hace un xor con la clave
     a[i] = s[i]^key[i];
   }
 
