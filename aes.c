@@ -44,7 +44,7 @@ char* hextobin(char hex);
 int check(int n);
 
 void bitGenerator(int b[NUM]){
-  srand ( time(NULL) );
+//  srand ( time(NULL) );
   for(int i=0 ; i<NUM ; i++)
     b[i] = rand() % 2;
 }
@@ -96,11 +96,13 @@ int main() {
   int a[NUM]; 																			//arreglo a codificar
   int b[NUM];  																			//bits Substitution
   int s[NUM]; 																			//shiftrows, guarda los desplazamientos
+  int key[NUM];                                     //Clave
   int aux[NUM];																			//arreglo auxiliar para mixcolumn
   int aux2[144];                                    //arreglo auxiliar para la multiplicación en mixcolumn
 
-  bitGenerator(a);
-  printf("\na: ");
+  bitGenerator(a);                                  //Genera el arreglo a codificar
+  bitGenerator(key);                                //Genera la clave
+  printf("\nArreglo a codificar\na: ");
   printer(a,NUM);
 
   int row, col, piv;
@@ -110,14 +112,14 @@ int main() {
   char *bin2;
 
 
-/************************************************************/  
+/************************************************************/
   //byte Substitution. Transforma cada 8 bits del array en números decimal, los pasa por la sbox guardando el resultado en hex y al final pasa todo a un arreglo b
-  for(int i=0; i<NUM ;i+=8){												
-    row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;			//convierte el hexadecimal a binario 
+  for(int i=0; i<NUM ;i+=8){
+    row = a[i]*8 +a[i+1]*4 +a[i+2]*2 +a[i+3]*1;			//convierte el hexadecimal a binario
     col = a[i+4]*8 +a[i+5]*4 +a[i+6]*2 +a[i+7]*1;
-    
-    hex=aes_sbox[row][col];													//Captura desde la sbox el hexadecimal al que se convierte Ai		
-    
+
+    hex=aes_sbox[row][col];													//Captura desde la sbox el hexadecimal al que se convierte Ai
+
     k=i; 																						//Para que guarde los bits transformados en la posición original que estaban en a
     for (size_t j = 0; j < 4; j++) {
       bin = hextobin(hex[0]);												//Guarda el binario del hexadecimal capturado desde la sbox
@@ -128,7 +130,8 @@ int main() {
     }
   }
 
-  printf("\nb: ");
+  printf("\nArreglo después de byte Substitution\n ");
+  printf("b:  ");
   printer(b,NUM);
 
 
@@ -136,14 +139,14 @@ int main() {
   //Shiftrows
   k = 0;
   int shiftRows[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11}; 	//Posiciones en que debe estar los b luego del shiftRows
-  
+
   for(int i=0 ; i<16 ; i++){
     for (int j = 0; j < 8; j++) {
        s[k] = b[shiftRows[i]*8 + j]; 								// se encarga de mover los 8 valores de b del shifteows a s
        k++; 																				// k va 0 a 128
     }
   }
-  printf("\ns: " );
+  printf("\nArreglo después de Shiftrows\n s: " );
   printer(s,NUM);
 
 
@@ -167,11 +170,10 @@ int main() {
   }
 
   /*
-  La estructura de aux[NUM] es: 
+  La estructura de aux[NUM] es:
   - De 0 a 6 primeras posiciones de bits de aux, se guarda el grado correspondiente segun posicion de acuerdo a s.
   - En la posición 7 se guarda el mismo valor de s para saber si es que x⁰ existe. Si se guardara el valor de su grado, siempre sería 0.
   */
-
   printf("\nP: ");
   printer(aux,NUM);
 
@@ -180,9 +182,9 @@ int main() {
   for(int i=0 ; i<NUM ; i+=32){
     k = i;
     for(int j=i ; j<k+32 ; j+=8){
-      if(matrix[row][col] == 01){                 //Sólo se suma uno a x⁰ y se utiliza el XOR para que 
+      if(matrix[row][col] == 01){                 //Sólo se suma uno a x⁰ y se utiliza el XOR para que
         aux2[piv] = 0;                            //cumpla con GL(2⁸)
-        aux2[piv+1] = aux[j];                     
+        aux2[piv+1] = aux[j];
         aux2[piv+2] = aux[j+1];
         aux2[piv+3] = aux[j+2];
         aux2[piv+4] = aux[j+3];
@@ -191,7 +193,7 @@ int main() {
         aux2[piv+7] = aux[j+6];
         aux2[piv+8] = aux[j+7]^1;
       }else if(matrix[row][col] == 02){           //Check verifica si es que x^n existe y devuelve n+1
-        aux2[piv] = check(aux[j]);                
+        aux2[piv] = check(aux[j]);
         aux2[piv+1] = check(aux[j+1]);
         aux2[piv+2] = check(aux[j+2]);
         aux2[piv+3] = check(aux[j+3]);
@@ -201,14 +203,14 @@ int main() {
         aux2[piv+7] = aux[j+7];                   //No se hace el check porque corresponde a x⁰ porque el valor guardado en esa posición es {0,1} siendo 0 si existe y 1 si no.
         aux2[piv+8] = 0;                          //Se pone 0 por default ya que el polinomio se está multiplicando por x¹, por lo tanto, no hay x⁰
       }else{
-        aux2[piv] = check(aux[j]);                //Se suma 1 a cada grado (funcion check) y se les aplica XOR con el polinomio original (ya que es x + 1) 
+        aux2[piv] = check(aux[j]);                //Se suma 1 a cada grado (funcion check) y se les aplica XOR con el polinomio original (ya que es x + 1)
         aux2[piv+1] = check(aux[j+1])^aux[j];     //
         aux2[piv+2] = check(aux[j+2])^aux[j+1];   //
         aux2[piv+3] = check(aux[j+3])^aux[j+2];   //
         aux2[piv+4] = check(aux[j+4])^aux[j+3];
         aux2[piv+5] = check(aux[j+5])^aux[j+4];
         aux2[piv+6] = check(aux[j+6])^aux[j+5];
-        aux2[piv+7] = aux[j+7]^aux[j+6]; 
+        aux2[piv+7] = aux[j+7]^aux[j+6];
         aux2[piv+8] = aux[j+7];
       }
       piv+=9;
@@ -220,20 +222,34 @@ int main() {
 
   printf("\nM: ");
   printer(aux2,144);
-	
-	for(i=0 ; i<144 ; i+=9){
-    if(i == 8){
-      reduccion()
-    }else{
-      for(int j=i+1; j<i+9 ; j++){
-        if(aux2 != 0){
-          s[i-1] = 1;
-        }else{
-          s[i-1] = 0;
-        }
-      }
+
+  //Se reducen los polinomios que sean de grado 8 con el Polinomio irreductible, diviendo el polinomios con el PI y guardando el resto
+  printf("\n" );
+  int PI[9]= {8,0,0,0,4,3,0,1,1}; // polinomio irreductible del aes
+  for (size_t i = 0; i < 144; i+=9)
+    if(aux2[i] == 8)
+      for (size_t j = 0; j < 9; j++)
+        aux2[i+j] = aux2[i+j]^PI[j]; //Hace un xor con cada polinomio de grado 8 con el PI
+  printf("M: " );
+  printer(aux2,144);
+
+  //se crea un nuevo arreglo de largo 128 con polinomios de grado 7
+  int t=0;
+  for (size_t i = 0; i < 144; i+=9) //Corta el arreglo en segmentos de polinomios de largo 8
+    for (size_t j = i+1; j < i+9; j++) { //quita el primer elemento del polinomio bajandole el grado a 7
+      s[t] = aux2[j] == 0 ? 0 : 1; // Guarda el nuevo polinomio en s.
+      t++;
     }
+  printf("\nArreglo después de mixcolumn\n");
+
+  printf("s: " );
+  printer(s,128);
+
+  for (size_t i = 0; i < 128; i++) {
+    a[i] = s[i]^key[i];
   }
 
+  printf("\nEl arreglo finalmente codificado es:\n" );
+  printer(a,128);
   return 0;
 }
