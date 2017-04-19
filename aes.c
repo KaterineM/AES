@@ -96,12 +96,16 @@ int main() {
   int a[NUM]; 																			//arreglo a codificar
   int b[NUM];  																			//bits Substitution
   int s[NUM]; 																			//shiftrows, guarda los desplazamientos
-  int key[NUM];                                     //Clave
+  //int key[NUM];                                     //Clave
   int aux[NUM];																			//arreglo auxiliar para mixcolumn
   int aux2[144];                                    //arreglo auxiliar para la multiplicación en mixcolumn
 
+  clock_t start;
+  clock_t end;
+  start = clock();
+
   bitGenerator(a);                                  //Genera el arreglo a codificar
-  bitGenerator(key);                                //Genera la clave
+  //bitGenerator(key);                                //Genera la clave
   printf("\nArreglo a codificar\na: ");
   printer(a,NUM);
 
@@ -240,16 +244,20 @@ int main() {
       s[t] = aux2[j] == 0 ? 0 : 1; // Guarda el nuevo polinomio en s.
       t++;
     }
-  printf("\nArreglo después de mixcolumn\n");
 
-  printf("s: " );
-  printer(s,128);
+    printf("\nEl arreglo después de MixColumn y finalmente codificado es:\n" );
+    printer(s,128);
 
-  for (size_t i = 0; i < 128; i++) { // se hace un xor con la clave
-    a[i] = s[i]^key[i];
-  }
+  //for (size_t i = 0; i < 128; i++) { // se hace un xor con la clave
+  //  a[i] = s[i]^ key[i];
+  //}
 
-  printf("\nEl arreglo finalmente codificado es:\n" );
-  printer(a,128);
+  end = clock();
+
+
+
+
+  printf("\n time: %f", (double)(end - start));
+
   return 0;
 }

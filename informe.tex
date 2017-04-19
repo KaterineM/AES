@@ -1,0 +1,292 @@
+\documentclass[12pt]{article}
+\usepackage[english]{babel}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{vmargin}
+\usepackage{listings}
+\usepackage[ruled]{algorithm2e}
+\usepackage{program}
+\setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
+
+\title{Laboratorio 2}								% Title
+\author{Katerine Mu\~noz Tello \\
+Sergio Salinas Fern\'andez}								% Author
+\date{\today}											% Date
+
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\theauthor}
+\lhead{\thetitle}
+\cfoot{\thepage}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+	\centering
+    \vspace*{0.5 cm}
+    \includegraphics[scale = 0.2]{UDSCNRJ.png}\\[1.0 cm]	% University Logo
+    \textsc{\LARGE Universidad Santiago de Chile}\\[2.0 cm]	% University Name
+	\textsc{\Large Sistemas de encriptaci\'on AES}\\[0.5 cm]				% Course Code
+	\textsc{\large Criptolog\'ia}\\[0.5 cm]				% Course Name
+	\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+	{ \huge \bfseries \thetitle}\\
+	\rule{\linewidth}{0.2 mm} \\[1.5 cm]
+	
+	\begin{minipage}{0.4\textwidth}
+		\begin{flushleft} \large
+			\emph{Author:}\\
+			\theauthor
+			\end{flushleft}
+			\end{minipage}~
+			\begin{minipage}{0.4\textwidth}
+			\begin{flushright} \large
+			\emph{Email:} \\
+			katerine.munoz@usach.cl \\
+            sergio.salinas@usach.cl  % Your Student Number
+		\end{flushright}
+	\end{minipage}\\[2 cm]
+	
+	{\large \thedate}\\[2 cm]
+ 
+	\vfill
+	
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tableofcontents
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Katty pone bit y key generator, vectorB, binary, 
+
+\section{Algoritmo Implementado}
+
+%Bit generator
+\begin{algorithm}[H]
+ \KwData{int. Arreglo de 128-bit.}
+ \KwResult{int. Arreglo llenado con números binarios aleatorios.}
+ \lFor{i $\longleftarrow$ 0 ... n}{b[i] $\longleftarrow$ random number mod 2}
+ \caption{\textbf{bitGenerator}. Genera números binarios aleatorios que son ingresados a un arreglo.}
+\end{algorithm}
+
+$\newline$
+$\newline$
+%check
+\begin{algorithm}[H]
+ \KwData{int.}
+ \KwResult{int.}
+ \uIf{x != 0}{x $\longleftarrow$ x + 1}
+ \Return x\;
+ \caption{\textbf{check}. Si es que el número ingresado es distinto de cero, devuelve la suma de este con 1.}
+\end{algorithm}
+
+%hextobin
+\begin{algorithm}[H]
+ \KwData{char. Representación hexadecimal de número binario.}
+ \KwResult{char. Representación binaria del hexadecimal ingresado.}
+ \Switch{hex}{
+ 	\lCase{'0'}{\Return '0000'}
+    \lCase{'1'}{\Return '0001'}
+    \lCase{'2'}{\Return '0010'}
+    \lCase{'3'}{\Return '0011'}
+    \lCase{'4'}{\Return '0100'}
+    \lCase{'5'}{\Return '0101'}
+    \lCase{'6'}{\Return '0110'}
+    \lCase{'7'}{\Return '0111'}
+    \lCase{'8'}{\Return '1000'}
+    \lCase{'9'}{\Return '1001'}
+    \lCase{'A'}{\Return '1010'}
+    \lCase{'B'}{\Return '1011'}
+    \lCase{'C'}{\Return '1100'}
+    \lCase{'D'}{\Return '1101'}
+    \lCase{'E'}{\Return '1110'}
+    \lCase{'F'}{\Return '1111'}
+    \lCase{'a'}{\Return '1010'}
+    \lCase{'b'}{\Return '1011'}
+    \lCase{'c'}{\Return '1100'}
+    \lCase{'d'}{\Return '1101'}
+    \lCase{'e'}{\Return '1110'}
+    \lCase{'f'}{\Return '1111'}
+ }
+ \caption{\textbf{hextobin}. Retorna la representación binaria de un número hexadecimal}
+\end{algorithm}
+
+
+%Main
+
+\begin{algorithm}[H]
+\
+inicializar\;
+\
+llamada a bitGenerator\;
+
+\
+
+\tcc{Byte Substitution}
+
+\
+\For{i  $\longleftarrow$  0, 8, 16, ..., 128}{
+       row $\longleftarrow$ conversión de binario a decimal desde i hasta i+3 del bit generado\;
+       col $\longleftarrow$ conversión de binario a decimal desde i+4 hasta i+7 del bit generado\;
+       hex $\longleftarrow$ sbox[row][col]\;
+       \For{j $\longleftarrow$ 0 ... 4}{
+       		bin $\longleftarrow$ \textbf{hextobin}(hex[0])\;
+            bin2 $\longleftarrow$ \textbf{hextobin}(hex[1])\;
+       }
+}
+
+\
+
+\tcc{Shift Rows}
+
+\
+k $\longleftarrow$ 0\;
+\For{i $\longleftarrow$ 0 ... 16}{
+	\For{j $\longleftarrow$ 0 ... 8}{
+    	s[k] $\longleftarrow$ guarda el binario rescatado arriba según la matriz de ShiftRow\;
+        k $\longleftarrow$ k + 1\;
+    }
+}
+
+\
+
+\tcc{Mix Column\\
+Se toman los binarios de s y se transforman a grado guardados en aux}
+
+raised $\longleftarrow$ 7\;
+piv $\longleftarrow$ 7\;
+\For{i $\longleftarrow$ 0 ... 128}{
+	\lIf{i alcanza los 8-bit}{raised $\longleftarrow$ 7}
+    \tcc*[f]{En la posición 7 se guarda el mismo valor de s para saber si es que x⁰ existe. Si se guardara el valor de su grado, siempre sería 0.}
+    
+    \
+    \uElseIf{i = piv}{
+    	aux[i] $\longleftarrow$ s[i]\;
+        piv $\longleftarrow$ piv + 8\;
+        raised $\longleftarrow$ raised - 1\;
+        \textbf{continue}\;
+    }
+    aux[i] $\longleftarrow$ s[i] * raised\;
+    raised $\longleftarrow$ raised - 1\;
+    
+}
+\caption{Main Function.}
+\end{algorithm}
+
+\begin{algorithm}
+\tcc{Multiplicación del arreglo s con la matriz guardado en aux2}
+row $\longleftarrow$ 0\;
+col $\longleftarrow$ 0\;
+piv $\longleftarrow$ 0\;
+
+\
+\For{int $\longleftarrow$ 0, 32, 64, ..., 128}{
+	k $\longleftarrow$ i\;
+    \For{j $\longleftarrow$ 0, 8, 16, 24, 32}{
+    	\tcc{Multiplicación por $1$. Los grados quedan igual salvo por $x^{0}$, al cual se le suma 1 y se le aplica XOR en caso de tener coef. mayor a 1.}
+    	\uIf{matrix[row][col] $\longleftarrow$ 01}{
+        	aux2[piv] $\longleftarrow$ 0\;
+            aux2[piv+1] a aux2[piv+7] $\longleftarrow$ aux[piv] a aux[piv+6] respectivamente\;
+            aux2[piv+8] $\longleftarrow$ aux[piv+7] $\oplus$ 1\;
+        }
+        \tcc{Multiplicación por $x$. Se le suma 1 a cada grado que no sea 0. $x^{1}$ queda con el mismo valor, ya que se guardó su coef. no grado.}
+        \uElseIf{matrix[row][col] $\longleftarrow$ 02}{
+        	aux2[piv] a aux2[piv+6] $\longleftarrow$ \textbf{check}(aux[piv] a aux[piv+6])\;
+            aux2[piv+7] $\longleftarrow$ aux[piv+7]\;
+            aux2[piv+8] $\longleftarrow$ 0\;
+        }
+        \tcc{Multiplicación por $(x+1)$. Se le suma 1 a cada grado que no sea 0 y se le aplica XOR (por la multiplicación por 1) para reducir coef. mayores a 1. Para $x^{1}$ lo mismo, pero si sumarle 1 (porque está guardado su coef. no su grado) y $x^{0}$ toma el valor de coef. original.}
+        \uElse{
+        	aux2[piv] a aux2[piv+6] $\longleftarrow$ \textbf{check}(aux[piv] a aux[piv+6]) $\oplus$ aux[piv] a aux[piv+6]\;
+            aux2[piv+7] $\longleftarrow$ aux[piv+7] $\oplus$ aux[piv+6]\;
+            aux2[piv+8] $\longleftarrow$ aux[piv+7]\;
+        }
+        piv $\longleftarrow$ piv + 9\;
+        col $\longleftarrow$ col + 1\;
+    }
+    row $\longleftarrow$ row + 1\;
+    col $\longleftarrow$ 0\;
+}
+\caption{Main Function.}
+\end{algorithm}
+
+\begin{algorithm}
+\tcc{Se reducen los polinomios de grado 8 por el polinomio irreductible}
+PI $\leftarrow $ $ x^8 + x^4 + x^3 + x +1 $\;
+\For{i $\leftarrow $ 0, 9, 18 ... 144}{
+
+\If{aux2[i] == 8}{
+	\For{ j $\leftarrow $ 0,1,2 ... 9 }{
+		aux2[i+j] = aux2[i+j] $\oplus$ PI[j]\;
+	
+	}
+}
+}
+
+
+\tcc{Se guardan los polinomios de grado 8 como polinomios de grado 7}
+t $\leftarrow $ 0\;
+\For{i $\leftarrow $ 0, 9, 18 ... 144}{
+	\For{ j $\leftarrow$ i, i+1, i+2 ... i + 9 }{
+	\eIf{aux2[j] == 0 }{
+		s[t] = 0\;
+	}{
+		s[t] = 1\;
+	}
+	t = t+1\;
+    }
+}
+
+return s\;
+%\tcc{Se hace un XOR con la llave}
+%\For{i $\leftarrow $ 0, 1, 2, 3 ... 128}{
+%	a[i] $\leftarrow $ s[i] $\oplus$ key[i]\;
+%}
+
+\caption{Main Function.}
+\end{algorithm}
+
+\newpage
+\section{Formulación del experimento}
+Se elabora un programa en C que implemente la función AES que incluya:\\
+\begin{itemize}
+\item Byte Substitution Layer:\\
+- Utilizando una S-Box.
+\item Capa de difusión:\\
+- ShiftRow\\
+- MixColumn
+\end{itemize}
+
+La salida del programa corresponde a cada estado del arreglo de bits principal.
+
+El algoritmo fue probado en un computador con procesador i5 de 2,9 gHz y 8GB de RAM.
+
+Ya que el algoritmo trabaja con largos de arreglos fijos, no fue posible construir un gráfico de desempeño que no fuese lineal.
+
+Para tratar con los polinomios en C se guardan en un arreglo de largo 9, como los polinomios no tienen coeficientes se guarda su grado, y para expresar el $x^0$ se guardaba un 1. Ejemplo:
+
+$  x^8 + x^4 + x^3 + x +1  $ se guarda como un arreglo [8,0,0,0,4,3,0,1,1].
+
+Debido a la complejidad al trabajar con números hexadecimales, se decidió trabajar los elementos de la tabla S-Box como tipo $char$, transformándolos posteriormente a tipo $int$.
+
+\section{Conclusiones}
+
+El algoritmo en la partes de byte subtitution y shiftrows no parece diferenciarse mucho del algoritmos DES, pero se puede ver su potencial en la parte de  MixColumn en donde se puede ver su verdadero potencial, siendo está la parte más compleja de programar y de la que se tuvo que investigar su parte matemática a fondo para poder implementarla y depurar el algoritmo.
+
+\end{document}
